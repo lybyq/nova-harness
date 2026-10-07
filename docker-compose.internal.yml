@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nova_harness
+      POSTGRES_USER: nova
+      POSTGRES_PASSWORD: ${NOVA_DB_PASSWORD:?请设置 NOVA_DB_PASSWORD}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nova -d nova_harness']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - nova-postgres:/var/lib/postgresql/data
+
+  hub-api:
+    image: nova-harness:1.0.0
+    restart: unless-stopped
+    command:
+      ['sh', '-c', 'pnpm prisma:migrate && pnpm prisma:seed && node apps/hub-api/dist/main.js']
+    environment:
+      DATABASE_URL: ${NOVA_DATABASE_URL:?请设置 NOVA_DATABASE_URL}
+      NOVA_HUB_PORT: 3200
+      NOVA_HUB_AUTH_ENABLED: 'false'
+      NOVA_DEPLOYMENT_CONFIG: /app/config/internal.yaml
+      NOVA_SECRET_CORP_GITLAB_TOKEN: ${NOVA_SECRET_CORP_GITLAB_TOKEN:-}
+      NOVA_SECRET_CORP_NPM_TOKEN: ${NOVA_SECRET_CORP_NPM_TOKEN:-}
+    ports:
+      - '3200:3200'
+    volumes:
+      - ./manifests/deployments/internal.offline.yaml:/app/config/internal.yaml:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3200/api/v1/health']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  hub-admin:
+    image: nova-harness:1.0.0
+    restart: unless-stopped
+    command: ['pnpm', '--filter', '@nova-cbb/hub-admin', 'preview']
+    environment:
+      NOVA_HUB_PROXY: http://hub-api:3200
+    ports:
+      - '3210:3210'
+    depends_on:
+      hub-api:
+        condition: service_healthy
+
+volumes:
+  nova-postgres:

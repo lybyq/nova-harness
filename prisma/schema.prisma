@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SourceType {
+  GITLAB
+  NPM
+}
+
+enum CapabilityType {
+  MCP
+  SKILL
+  PLUGIN
+  AGENT
+  HOOK
+  POLICY
+  PACK
+}
+
+enum CapabilityStatus {
+  ACTIVE
+  DEPRECATED
+  DISABLED
+  EXPERIMENTAL
+  NEEDS_REVIEW
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SyncStatus {
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
+}
+
+model CatalogSource {
+  id           String       @id
+  displayName  String
+  type         SourceType
+  enabled      Boolean      @default(true)
+  config       Json
+  secretRefs   Json         @default("[]")
+  rowVersion   Int          @default(1)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+  capabilities Capability[]
+  syncRuns     SyncRun[]
+
+  @@map("catalog_sources")
+}
+
+model Capability {
+  id              String           @id
+  type            CapabilityType
+  name            String
+  displayName     String
+  description     String           @default("")
+  tags            Json             @default("[]")
+  categories      Json             @default("[]")
+  maintainers     Json             @default("[]")
+  status          CapabilityStatus @default(NEEDS_REVIEW)
+  riskLevel       RiskLevel        @default(MEDIUM)
+  sourceId        String
+  sourceLocator   String
+  sourceMetadata  Json             @default("{}")
+  adminOverrides  Json             @default("{}")
+  effectiveData   Json             @default("{}")
+  lastSeenSyncId  String?
+  rowVersion      Int              @default(1)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+  source          CatalogSource    @relation(fields: [sourceId], references: [id])
+  versions        CapabilityVersion[]
+
+  @@index([type, status])
+  @@index([sourceId, deletedAt])
+  @@map("capabilities")
+}
+
+model CapabilityVersion {
+  id               String     @id @default(cuid())
+  capabilityId     String
+  version          String
+  recommended      Boolean    @default(false)
+  commitSha        String?
+  integrity        String?
+  archiveSha256    String?
+  manifestChecksum String
+  metadata         Json       @default("{}")
+  rowVersion       Int        @default(1)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
+  capability       Capability @relation(fields: [capabilityId], references: [id], onDelete: Cascade)
+
+  @@unique([capabilityId, version])
+  @@index([capabilityId, recommended])
+  @@map("capability_versions")
+}
+
+model Role {
+  id          String        @id
+  displayName String
+  description String        @default("")
+  published   Boolean       @default(false)
+  rowVersion  Int           @default(1)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  versions    RoleVersion[]
+
+  @@map("roles")
+}
+
+model RoleVersion {
+  id        String   @id @default(cuid())
+  roleId    String
+  version   String
+  document  Json
+  checksum  String
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, version])
+  @@map("role_versions")
+}
+
+model SyncRun {
+  id          String        @id @default(cuid())
+  sourceId    String
+  status      SyncStatus    @default(RUNNING)
+  fullSync    Boolean       @default(true)
+  discovered  Int           @default(0)
+  created     Int           @default(0)
+  updated     Int           @default(0)
+  skipped     Int           @default(0)
+  failed      Int           @default(0)
+  error       Json?
+  startedAt   DateTime      @default(now())
+  finishedAt  DateTime?
+  source      CatalogSource @relation(fields: [sourceId], references: [id])
+  items       SyncItem[]
+
+  @@index([sourceId, startedAt])
+  @@map("sync_runs")
+}
+
+model SyncItem {
+  id           String   @id @default(cuid())
+  syncRunId    String
+  capabilityId String?
+  locator      String
+  action       String
+  status       String
+  message      String?
+  createdAt    DateTime @default(now())
+  syncRun      SyncRun  @relation(fields: [syncRunId], references: [id], onDelete: Cascade)
+
+  @@index([syncRunId, status])
+  @@map("sync_items")
+}
+
+model AdminAuditLog {
+  id           String   @id @default(cuid())
+  actorId      String
+  action       String
+  resourceType String
+  resourceId   String
+  before       Json?
+  after        Json?
+  requestId    String?
+  createdAt    DateTime @default(now())
+
+  @@index([resourceType, resourceId, createdAt])
+  @@map("admin_audit_logs")
+}

@@ -1,0 +1,22 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata:
+  {
+    id: base-developer,
+    displayName: 基础研发,
+    description: 所有研发角色的公共策略层,
+    version: 1.0.0,
+  }
+extends: []
+runtime: { default: claude-code }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions:
+  - { id: file-read, effect: allow, action: file.read, resource: '*', enforced: false }
+  - {
+      id: destructive-shell,
+      effect: requireApproval,
+      action: shell.execute,
+      resource: destructive,
+      enforced: true,
+    }
+defaults: { mappingStatus: pending }

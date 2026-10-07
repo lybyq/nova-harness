@@ -1,0 +1,18 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata:
+  { id: backend, displayName: 后端工程师, description: 服务端、接口与数据开发, version: 1.0.0 }
+extends: [base-developer]
+runtime: { default: claude-code, defaultAgent: backend-engineer }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions:
+  [
+    {
+      id: production-write,
+      effect: deny,
+      action: database.write,
+      resource: production,
+      enforced: true,
+    },
+  ]
+defaults: { mappingStatus: pending }

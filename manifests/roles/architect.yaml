@@ -1,0 +1,18 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata:
+  { id: architect, displayName: 架构师, description: 系统设计、技术治理与演进规划, version: 1.0.0 }
+extends: [base-developer]
+runtime: { default: claude-code, defaultAgent: architect }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions:
+  [
+    {
+      id: production-access,
+      effect: requireApproval,
+      action: environment.access,
+      resource: production,
+      enforced: true,
+    },
+  ]
+defaults: { mappingStatus: pending }

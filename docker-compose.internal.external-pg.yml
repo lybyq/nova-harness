@@ -1,0 +1,43 @@
+services:
+  # 外部 PostgreSQL 的结构迁移与内置角色初始化工具。
+  # 该服务属于 tools profile，不会被日常 `up -d` 自动启动；每次发布前由运维显式执行一次。
+  hub-migrate:
+    image: nova-harness:1.0.0
+    profiles: ['tools']
+    restart: 'no'
+    command: ['sh', '-c', 'pnpm prisma:migrate && pnpm prisma:seed']
+    environment:
+      DATABASE_URL: ${NOVA_DATABASE_URL:?请设置外部 PostgreSQL 的 NOVA_DATABASE_URL}
+
+  hub-api:
+    image: nova-harness:1.0.0
+    restart: unless-stopped
+    command: ['node', 'apps/hub-api/dist/main.js']
+    environment:
+      DATABASE_URL: ${NOVA_DATABASE_URL:?请设置外部 PostgreSQL 的 NOVA_DATABASE_URL}
+      NOVA_HUB_PORT: 3200
+      NOVA_HUB_AUTH_ENABLED: 'false'
+      NOVA_DEPLOYMENT_CONFIG: /app/config/internal.yaml
+      NOVA_SECRET_CORP_GITLAB_TOKEN: ${NOVA_SECRET_CORP_GITLAB_TOKEN:-}
+      NOVA_SECRET_CORP_NPM_TOKEN: ${NOVA_SECRET_CORP_NPM_TOKEN:-}
+    ports:
+      - '3200:3200'
+    volumes:
+      - ./manifests/deployments/internal.offline.yaml:/app/config/internal.yaml:ro
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3200/api/v1/health']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  hub-admin:
+    image: nova-harness:1.0.0
+    restart: unless-stopped
+    command: ['pnpm', '--filter', '@nova-cbb/hub-admin', 'preview']
+    environment:
+      NOVA_HUB_PROXY: http://hub-api:3200
+    ports:
+      - '3210:3210'
+    depends_on:
+      hub-api:
+        condition: service_healthy

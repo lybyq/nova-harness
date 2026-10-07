@@ -1,0 +1,43 @@
+apiVersion: harness.nova/v1
+kind: DeploymentProfile
+metadata:
+  id: mock-host
+  displayName: 宿主机确定性 E2E
+  description: Windows 宿主机运行 Hub/CLI，PostgreSQL 使用 Docker 端口映射。
+hub:
+  url: http://localhost:3200/api/v1
+network:
+  noProxy: [localhost, 127.0.0.1]
+  rejectUnauthorized: true
+downloads:
+  allowedHosts: [localhost]
+  allowedRedirectHosts: []
+  maxArchiveBytes: 10485760
+  maxExtractedBytes: 52428800
+  maxFiles: 2000
+  allowLifecycleScripts: false
+sources:
+  - id: mock-gitlab
+    displayName: Mock GitLab
+    type: gitlab
+    baseUrl: http://localhost:3400
+    rootGroup: nova
+    skillGroupPath: skills
+    pluginGroupPath: plugins
+    recursive: true
+    includeSharedProjects: false
+  - id: mock-npm
+    displayName: Mock npm
+    type: npm
+    registry: http://localhost:3400
+    adapter: npm-compatible
+    scopes: ['@nova-cbb']
+    packagePatterns: ['@nova-cbb/*']
+    seedPackages: ['@nova-cbb/mock-mcp']
+runtime:
+  default: claude-code
+  mode: isolated
+trust:
+  allowUnreviewed: false
+  allowedMaintainerTeams: []
+  requireApprovalAt: high

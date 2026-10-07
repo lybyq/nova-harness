@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+.nova/
+*.log
+.DS_Store
+Thumbs.db
+apps/hub-api/prisma/dev.db
+
+# Large offline deployment bundles stay local.
+/nova-harness.7z
+/nova-harness-docker-images-*.tgz
+.tmp-*/

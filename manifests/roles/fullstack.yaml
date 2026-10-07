@@ -1,0 +1,8 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata: { id: fullstack, displayName: 全栈工程师, description: 前后端一体化开发, version: 1.0.0 }
+extends: [frontend, backend]
+runtime: { default: claude-code, defaultAgent: fullstack-engineer }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions: []
+defaults: { mappingStatus: pending }

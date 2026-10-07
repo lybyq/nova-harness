@@ -1,0 +1,45 @@
+{
+  "name": "nova-harness",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.16.0",
+  "engines": {
+    "node": ">=20.18"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm --parallel --filter @nova-cbb/hub-api --filter @nova-cbb/hub-admin dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:smoke:public": "vitest run --config vitest.public.config.ts",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate deploy --schema prisma/schema.prisma",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "release:check": "node scripts/release-check.mjs"
+  },
+  "devDependencies": {
+    "@nova-cbb/harness-contracts": "workspace:*",
+    "@nova-cbb/harness-shared": "workspace:*",
+    "@eslint/js": "^9.38.0",
+    "@types/express": "^5.0.5",
+    "@swc/core": "^1.13.5",
+    "@prisma/client": "^6.0.0",
+    "@types/node": "^22.18.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.38.0",
+    "prettier": "^3.6.2",
+    "prisma": "^6.0.0",
+    "tsx": "^4.20.6",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vitest": "^3.2.4",
+    "yaml": "^2.8.1"
+  }
+}

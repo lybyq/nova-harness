@@ -1,0 +1,15 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata:
+  {
+    id: frontend,
+    displayName: 前端工程师,
+    description: Vue、TypeScript 与前端工程化,
+    version: 1.0.0,
+  }
+extends: [base-developer]
+runtime: { default: claude-code, defaultAgent: frontend-engineer }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions:
+  [{ id: git-push, effect: requireApproval, action: git.push, resource: '*', enforced: true }]
+defaults: { mappingStatus: pending }

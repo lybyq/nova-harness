@@ -1,0 +1,9 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata:
+  { id: qa, displayName: 测试工程师, description: 测试设计、自动化与质量分析, version: 1.0.0 }
+extends: [base-developer]
+runtime: { default: claude-code, defaultAgent: qa-engineer }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions: []
+defaults: { mappingStatus: pending }

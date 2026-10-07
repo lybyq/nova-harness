@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "paths": {
+      "@nova-cbb/harness-contracts": ["packages/contracts/src/index.ts"],
+      "@nova-cbb/harness-shared": ["packages/shared/src/index.ts"],
+      "@nova-cbb/harness-core": ["packages/core/src/index.ts"],
+      "@nova-cbb/harness-installer": ["packages/installer/src/index.ts"],
+      "@nova-cbb/harness-secrets": ["packages/secrets/src/index.ts"],
+      "@nova-cbb/runtime-claude-code": ["packages/runtime-claude/src/index.ts"],
+      "@nova-cbb/source-gitlab": ["packages/source-gitlab/src/index.ts"],
+      "@nova-cbb/source-npm": ["packages/source-npm/src/index.ts"]
+    },
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}

@@ -1,0 +1,59 @@
+apiVersion: harness.nova/v1
+kind: DeploymentProfile
+
+metadata:
+  id: public-smoke
+  displayName: 公网只读冒烟
+  description: 使用 GitLab.com 和 registry.npmjs.org 验证真实协议，不用于确定性 CI。
+
+hub:
+  url: http://localhost:3200/api/v1
+
+network:
+  noProxy:
+    - localhost
+    - 127.0.0.1
+  rejectUnauthorized: true
+
+downloads:
+  allowedHosts:
+    - gitlab.com
+    - registry.npmjs.org
+  allowedRedirectHosts:
+    - objects.githubusercontent.com
+  maxArchiveBytes: 104857600
+  maxExtractedBytes: 524288000
+  maxFiles: 20000
+  allowLifecycleScripts: false
+
+sources:
+  - id: public-gitlab
+    displayName: GitLab.com
+    type: gitlab
+    baseUrl: https://gitlab.com
+    rootGroup: gitlab-org
+    skillGroupPath: skills
+    pluginGroupPath: plugins
+    recursive: true
+    includeSharedProjects: false
+
+  - id: public-npm
+    displayName: npmjs.org
+    type: npm
+    registry: https://registry.npmjs.org
+    adapter: static-index
+    scopes:
+      - '@modelcontextprotocol'
+    packagePatterns:
+      - '@modelcontextprotocol/server-*'
+    seedPackages:
+      - '@modelcontextprotocol/server-filesystem'
+
+runtime:
+  default: claude-code
+  mode: isolated
+
+trust:
+  allowUnreviewed: true
+  allowedMaintainerTeams: []
+  requireApprovalAt: high

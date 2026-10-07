@@ -1,0 +1,62 @@
+apiVersion: harness.nova/v1
+kind: DeploymentProfile
+
+metadata:
+  id: internal-example
+  displayName: 内网示例
+  description: 复制本文件并替换地址、CA、Group、Scope 和 Secret 引用。
+
+hub:
+  url: https://nova-harness.example.internal/api/v1
+  authRef: INTERNAL_EXAMPLE/HUB_TOKEN
+
+network:
+  proxyUrl: http://proxy.example.internal:8080
+  noProxy:
+    - .example.internal
+  caFile: C:/company-ca/root.pem
+  rejectUnauthorized: true
+
+downloads:
+  allowedHosts:
+    - gitlab.example.internal
+    - npm.example.internal
+  allowedRedirectHosts: []
+  maxArchiveBytes: 104857600
+  maxExtractedBytes: 524288000
+  maxFiles: 20000
+  allowLifecycleScripts: false
+
+sources:
+  - id: internal-gitlab
+    displayName: 企业 GitLab
+    type: gitlab
+    baseUrl: https://gitlab.example.internal
+    authRef: INTERNAL_EXAMPLE/GITLAB_SYNC_TOKEN
+    rootGroup: agent-assets
+    skillGroupPath: skills
+    pluginGroupPath: plugins
+    recursive: true
+    includeSharedProjects: false
+
+  - id: internal-npm
+    displayName: 企业 npm Registry
+    type: npm
+    registry: https://npm.example.internal
+    authRef: INTERNAL_EXAMPLE/NPM_TOKEN
+    adapter: static-index
+    scopes:
+      - '@company'
+    packagePatterns:
+      - '@company/*-mcp'
+    staticIndexUrl: https://npm.example.internal/-/nova-harness/index.json
+
+runtime:
+  default: claude-code
+  mode: integrated
+
+trust:
+  allowUnreviewed: false
+  allowedMaintainerTeams:
+    - agent-platform
+  requireApprovalAt: high

@@ -1,0 +1,74 @@
+apiVersion: harness.nova/v1
+kind: DeploymentProfile
+
+metadata:
+  id: corp-internal
+  displayName: 完全离线内网
+  description: 无外网、无企业 CA 时使用 HTTP 连接内网 Hub、GitLab 与 npm。
+
+hub:
+  # CLI 用户可访问的 Hub 地址；没有内网 DNS 时改为部署服务器的固定 IP。
+  url: http://nova-harness.intra:3200/api/v1
+  # 当前 Hub 默认开放访问，因此不配置 authRef。
+
+network:
+  noProxy:
+    - nova-harness.intra
+    - gitlab.intra
+    - npm.intra
+    - localhost
+    - 127.0.0.1
+  # HTTP 不使用证书校验；仍保持 true，避免未来改成 HTTPS 时静默跳过校验。
+  rejectUnauthorized: true
+
+downloads:
+  allowedHosts:
+    - gitlab.intra
+    - npm.intra
+  # 若 npm tarball 或 GitLab Archive 跳转到独立存储域名，必须显式加入此列表。
+  allowedRedirectHosts: []
+  maxArchiveBytes: 104857600
+  maxExtractedBytes: 524288000
+  maxFiles: 20000
+  allowLifecycleScripts: false
+
+sources:
+  - id: corp-gitlab
+    displayName: 内网 GitLab
+    type: gitlab
+    baseUrl: http://gitlab.intra
+    authRef: CORP/GITLAB_TOKEN
+    rootGroup: agent-assets
+    skillGroupPath: skills
+    pluginGroupPath: plugins
+    recursive: true
+    includeSharedProjects: false
+
+  - id: corp-npm
+    displayName: 内网 npm Registry
+    type: npm
+    registry: http://npm.intra
+    authRef: CORP/NPM_TOKEN
+    # 完全离线源不一定实现 npm Search API；用静态种子列表最稳定。
+    adapter: static-index
+    scopes:
+      - '@nova-cbb'
+    packagePatterns:
+      - '@nova-cbb/*-mcp'
+    seedPackages:
+      # 上线前替换为内网实际 MCP 包名并列全。
+      - '@nova-cbb/example-mcp'
+
+sync:
+  schedule: '0 */30 * * * *'
+  concurrency: 4
+
+runtime:
+  default: claude-code
+  mode: integrated
+
+trust:
+  allowUnreviewed: false
+  allowedMaintainerTeams:
+    - agent-platform
+  requireApprovalAt: high

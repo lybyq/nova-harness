@@ -1,0 +1,9 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata: { id: product, displayName: 产品经理, description: 需求、调研与产品协作, version: 1.0.0 }
+extends: []
+runtime: { default: claude-code, defaultAgent: product-manager }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions:
+  [{ id: publish, effect: requireApproval, action: wiki.publish, resource: '*', enforced: true }]
+defaults: { mappingStatus: pending }

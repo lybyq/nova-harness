@@ -1,0 +1,8 @@
+apiVersion: harness.nova/v1
+kind: RoleProfile
+metadata: { id: designer, displayName: 设计师, description: 交互、视觉与设计系统, version: 1.0.0 }
+extends: []
+runtime: { default: claude-code, defaultAgent: designer }
+capabilities: { required: [], recommended: [], optional: [], denied: [] }
+permissions: []
+defaults: { mappingStatus: pending }

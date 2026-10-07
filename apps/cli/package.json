@@ -1,0 +1,33 @@
+{
+  "name": "@nova-cbb/harness-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "nova": "./dist/main.js"
+  },
+  "main": "./dist/main.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/main.ts --format esm --sourcemap --clean",
+    "dev": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "@nova-cbb/harness-contracts": "workspace:*",
+    "@nova-cbb/harness-core": "workspace:*",
+    "@nova-cbb/harness-installer": "workspace:*",
+    "@nova-cbb/harness-secrets": "workspace:*",
+    "@nova-cbb/harness-shared": "workspace:*",
+    "@nova-cbb/runtime-claude-code": "workspace:*",
+    "@nova-cbb/source-gitlab": "workspace:*",
+    "@nova-cbb/source-npm": "workspace:*",
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.1",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.12"
+  }
+}

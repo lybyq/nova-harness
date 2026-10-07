@@ -1,0 +1,33 @@
+{
+  "name": "@nova-cbb/hub-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsup src/main.ts --format esm --sourcemap --clean --external @prisma/client",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "@nova-cbb/harness-contracts": "workspace:*",
+    "@nova-cbb/harness-core": "workspace:*",
+    "@nova-cbb/harness-shared": "workspace:*",
+    "@nova-cbb/source-gitlab": "workspace:*",
+    "@nova-cbb/source-npm": "workspace:*",
+    "@prisma/client": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "express": "^5.1.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.12"
+  }
+}
